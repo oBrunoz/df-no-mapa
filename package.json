@@ -1,0 +1,30 @@
+{
+  "name": "df-no-mapa",
+  "version": "1.0.0",
+  "description": "",
+  "main": "estimation-land-surface-temperature.js",
+  "scripts": {
+    "start": "nodemon",
+    "build": "tsc",
+    "style": "npx @tailwindcss/cli -i ./public/css/input.css -o ./public/css/tailwind.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/express-ejs-layouts": "^2.5.4",
+    "@types/node": "^22.14.1",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-ejs-layouts": "^2.5.1",
+    "leaflet": "^1.9.4",
+    "tailwindcss": "^4.1.4"
+  }
+}
