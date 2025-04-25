@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
   // Inicializar o mapa
-  const map = L.map("map").setView([-15.7801, -47.9292], 5); // Centro aproximado do Brasil
+  const map = L.map("map").setView([-15.7801, -47.9292], 12); // Centro aproximado do Brasil
 
   // Adicionar camada base de tiles (OpenStreetMap)
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -12,9 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Adicionar GeoJSON simplificado do Brasil (apenas para demonstração)
   fetch(
     "https://raw.githubusercontent.com/tbrugz/geodata-br/master/geojson/geojs-53-mun.json"
-  )
-    .then((response) => response.json())
-    .then((data) => {
+  ).then((response) => response.json()).then((data) => {
       L.geoJSON(data, {
         style: {
           fillColor: "red",
@@ -27,10 +25,34 @@ document.addEventListener("DOMContentLoaded", function () {
     })
     .catch((error) => console.error("Erro ao carregar GeoJSON:", error));
 
-  // Simulação das camadas do MapBiomas (simplificado para demonstração)
-  // Em um caso real, carregaríamos dados reais de um serviço WMS ou tiles
+    // Faz a requisição para o backend
+    fetch(`http://localhost:8080/api/ndvi`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro na requisição');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            // Adiciona a nova camada ao mapa
+            const tileUrl = `https://earthengine.googleapis.com/map/${data.mapid}/{z}/{x}/{y}?token=${data.token}`;
+            landsatLayer = L.tileLayer(tileUrl, {
+                attribution: 'Google Earth Engine - Landsat 9',
+                maxZoom: 20
+            }).addTo(map);
+            
+            // Ajusta a visualização para os limites da região
+            const bounds = L.latLngBounds(data.bounds[0][1], data.bounds[0][0]);
+            map.fitBounds(bounds);
+            
+            // Atualiza o painel de informações
+            updateInfoPanel(data, startDate, endDate);
+        })
 
-  // Atualizar o ano exibido quando o slider muda
   const yearSlider = document.getElementById("year-slider");
   const selectedYearSpan = document.getElementById("selected-year");
 
@@ -90,11 +112,10 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     ),
     "stamen-terrain": L.tileLayer(
-      "https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.png",
+      "https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png",
       {
         maxZoom: 18,
-        attribution:
-          'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        attribution: '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://www.stamen.com/" target="_blank">Stamen Design</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }
     ),
     "esri-satellite": L.tileLayer(
