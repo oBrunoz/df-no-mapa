@@ -1,0 +1,120 @@
+import ee
+
+# Classe de processamento de imagens Landsat
+class LandsatProcessor:
+    def __init__(self, region_name="Distrito Federal", year=2023):
+        ee.Authenticate()
+        ee.Initialize()
+        self.region_name = region_name
+        self.year = year
+        self.region = self._load_region()
+        self.image = self._process_image()
+        self.ndvi = self.image.normalizedDifference(['SR_B5', 'SR_B4']).rename('NDVI')
+        self.ndvi_min, self.ndvi_max = self._calculate_min_and_max_ndvi()
+        self.thermal = self._calculate_thermal_layer()
+
+    def _load_region(self):
+        return ee.FeatureCollection('FAO/GAUL/2015/level1') \
+                 .filter(ee.Filter.eq('ADM1_NAME', self.region_name))
+
+    def _apply_scale_factors(self, image):
+        optical = image.select('SR_B.').multiply(0.0000275).add(-0.2)
+        thermal = image.select('ST_B.*').multiply(0.00341802).add(149.0)
+        return image.addBands(optical, None, True).addBands(thermal, None, True)
+
+    def _cloud_mask(self, image):
+        cloud_shadow = (1 << 3)
+        cloud = (1 << 5)
+        qa = image.select('QA_PIXEL')
+        mask = qa.bitwiseAnd(cloud_shadow).eq(0).And(
+               qa.bitwiseAnd(cloud).eq(0))
+        return image.updateMask(mask)
+
+    def _process_image(self):
+        return (ee.ImageCollection("LANDSAT/LC09/C02/T1_L2")
+                  .filterBounds(self.region)
+                  .filterDate(f'{self.year}-01-01', f'{self.year}-12-31')
+                  .map(self._apply_scale_factors)
+                  .map(self._cloud_mask)
+                  .median()
+                  .clip(self.region))
+
+    def _calculate_min_and_max_ndvi(self):
+        stats = self.ndvi.reduceRegion(
+            reducer=ee.Reducer.minMax(),
+            geometry=self.region.geometry(),
+            scale=30,
+            maxPixels=1e9
+        ).getInfo()
+
+        print("Minimum NDVI:", stats['NDVI_min'])
+        print("Maximum NDVI:", stats['NDVI_max'])
+        return stats['NDVI_min'], stats['NDVI_max']
+
+    def get_landsat_layer(self):
+        vis = {
+            'bands': ['SR_B4', 'SR_B3', 'SR_B2'],
+            'min': 0.0,
+            'max': 0.15
+        }
+        map_info = self.image.getMapId(vis)
+        return {
+            'mapid': map_info['mapid'],
+            'image': self.image,
+            'token': map_info['token'],
+            'visualization': vis,
+            'bounds': self.region.geometry().bounds().getInfo()['coordinates'],
+            'region_name': self.region_name,
+            'dates': {'start': f'{self.year}-01-01', 'end': f'{self.year}-12-31'}
+        }
+
+    def get_ndvi_layer(self):
+        return {
+            'ndvi': self.ndvi,
+            'ndviPallete': {
+                'min': -1,
+                'max': 1,
+                'palette': ['blue', 'white', 'green']
+            }
+        }
+
+    def _calculate_thermal_layer(self):
+        fv = ((self.ndvi.subtract(self.ndvi_min))
+              .divide(self.ndvi_max - self.ndvi_min)).pow(2).rename('FV')
+        em = fv.multiply(ee.Number(0.004)).add(ee.Number(0.986)).rename('EM')
+        thermal = self.image.select('ST_B10').rename('thermal')
+        lst = thermal.expression(
+            '(TB / (1 + (0.00115 * (TB / 1.438)) * log(em))) - 273.15',
+            {'TB': thermal, 'em': em}
+        ).rename(f'Temperatura do solo do {self.region_name} - {self.year}')
+        return lst
+
+    def get_thermal_layer(self):
+        return {
+            'layer': self.thermal,
+            'vis_params': {
+                "min": 18.47,
+                "max": 42.86,
+                "palette": [
+                    '040274', '040281', '0502a3', '0502b8', '0502ce', '0502e6',
+                    '0602ff', '235cb1', '307ef3', '269db1', '30c8e2', '32d3ef',
+                    '3be285', '3ff38f', '86e26f', '3ae237', 'b5e22e', 'd6e21f',
+                    'fff705', 'ffd611', 'ffb613', 'ff8b13', 'ff6e08', 'ff500d',
+                    'ff0000', 'de0101', 'c21301', 'a71001', '911003'
+                ]
+            },
+            'name': f'Temperatura do solo - {self.year} - {self.region_name}'
+        }
+
+    # def visualize(self):
+    #     m = geemap.Map(center=[-15.8, -47.9], zoom=12)
+
+    #     landsat = self.get_landsat_layer()
+    #     ndvi = self.get_ndvi_layer()
+    #     thermal = self.get_thermal_layer()
+
+    #     m.add_layer(landsat['image'], landsat['visualization'], 'Landsat')
+    #     m.add_layer(ndvi['ndvi'], ndvi['ndviPallete'], 'NDVI')
+    #     m.add_layer(thermal['layer'], thermal['vis_params'], thermal['name'])
+
+    #     return m
