@@ -1,63 +1,9 @@
 <%- contentFor('body') %>
 
 <div class="app">
-    <!-- Hero com vídeo em background e informações do filme -->
-    <section class="relative h-screen overflow-hidden bg-black">
+    <section class="relative h-screen overflow-hidden">
         <!-- Container do mapa -->
         <div id="map" class="map-container z-0"></div>
-        
-        <!-- Painel de informações -->
-        <div class="absolute top-40 left-6 w-64 info-panel p-4">
-            <h3 class="text-lg font-semibold text-gray-800 mb-2">Camadas</h3>
-            
-            <div class="space-y-2 mb-4">
-                <div class="flex items-center">
-                    <input type="checkbox" id="layer-forest" class="mr-2" checked>
-                    <label for="layer-forest" class="text-sm text-gray-700">Floresta</label>
-                </div>
-                <div class="flex items-center">
-                    <input type="checkbox" id="layer-agriculture" class="mr-2" checked>
-                    <label for="layer-agriculture" class="text-sm text-gray-700">Agricultura</label>
-                </div>
-                <div class="flex items-center">
-                    <input type="checkbox" id="layer-urban" class="mr-2" checked>
-                    <label for="layer-urban" class="text-sm text-gray-700">Áreas Urbanas</label>
-                </div>
-                <div class="flex items-center">
-                    <input type="checkbox" id="layer-water" class="mr-2" checked>
-                    <label for="layer-water" class="text-sm text-gray-700">Corpos d'Água</label>
-                </div>
-            </div>
-            
-            <h3 class="text-lg font-semibold text-gray-800 mb-2">Legenda</h3>
-            
-            <div class="mb-4">
-                <div class="legend-item">
-                    <div class="legend-color bg-green-700"></div>
-                    <span class="text-sm text-gray-700">Floresta</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color bg-yellow-500"></div>
-                    <span class="text-sm text-gray-700">Agricultura</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color bg-red-500"></div>
-                    <span class="text-sm text-gray-700">Áreas Urbanas</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color bg-blue-500"></div>
-                    <span class="text-sm text-gray-700">Corpos d'Água</span>
-                </div>
-            </div>
-            
-            <div class="pt-2 border-t border-gray-200">
-                <h4 class="text-sm font-medium text-gray-800 mb-1">Período</h4>
-                <div class="flex flex-col">
-                    <label for="year-slider" class="text-xs text-gray-600 mb-1">Ano: <span id="selected-year">2023</span></label>
-                    <input type="range" id="year-slider" min="1985" max="2023" value="2023" class="w-full">
-                </div>
-            </div>
-        </div>
         
         <!-- Painel de estatísticas -->
         <div class="absolute bottom-6 left-6 right-6 bg-white bg-opacity-90 p-4 rounded-lg shadow-lg flex justify-between items-center z-10">
@@ -67,14 +13,6 @@
                     <div class="text-xs text-gray-600">Vegetação Nativa</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-yellow-600 font-bold text-xl">30.6%</div>
-                    <div class="text-xs text-gray-600">Agropecuária</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-blue-600 font-bold text-xl">8.3%</div>
-                    <div class="text-xs text-gray-600">Corpos d'Água</div>
-                </div>
-                <div class="text-center">
                     <div class="text-red-600 font-bold text-xl">1.3%</div>
                     <div class="text-xs text-gray-600">Áreas Urbanas</div>
                 </div>
@@ -82,70 +20,6 @@
             <div>
                 <button class="cursor-pointer bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm transition duration-200">Exportar Dados</button>
             </div>
-        </div>
-        
-        <!-- Botões de controle do mapa -->
-        <div class="absolute top-40 right-6 flex flex-col space-y-2 z-10">
-            <button class="cursor-pointer bg-white p-2 rounded-md shadow-md hover:bg-gray-100 transition duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-            </button>
-            <button class="cursor-pointer bg-white p-2 rounded-md shadow-md hover:bg-gray-100 transition duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-                </svg>
-            </button>
-            <button class="cursor-pointer bg-white p-2 rounded-md shadow-md hover:bg-gray-100 transition duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-            </button>
-            <div class="relative">
-                
-                <button id="map-layers-toggle" class="cursor-pointer bg-white p-2 rounded-md shadow-md hover:bg-gray-100 transition duration-200">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/>
-                    <path d="M15 5.764v15"/>
-                    <path d="M9 3.236v15"/>
-                  </svg>
-                </button>
-                
-                <!-- Dropdown menu (inicialmente escondido) -->
-                <div id="map-layers-dropdown" class="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden">
-                  <div class="py-1" role="menu" aria-orientation="vertical">
-                    <button class="cursor-pointer map-layer-option flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left" data-layer="osm-standard">
-                      <span class="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
-                      OpenStreetMap Padrão
-                    </button>
-                    <button class="cursor-pointer map-layer-option flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left" data-layer="osm-humanitarian">
-                      <span class="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
-                      OSM Humanitário
-                    </button>
-                    <button class="cursor-pointer map-layer-option flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left" data-layer="carto-voyager">
-                      <span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
-                      Carto Voyager
-                    </button>
-                    <button class="cursor-pointer map-layer-option flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left" data-layer="stamen-terrain">
-                      <span class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>
-                      Stamen Terrain
-                    </button>
-                    <button class="cursor-pointer map-layer-option flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left" data-layer="esri-satellite">
-                      <span class="w-3 h-3 bg-gray-500 rounded-full mr-2"></span>
-                      ESRI Satélite
-                    </button>
-                    <button class="cursor-pointer map-layer-option flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left" data-layer="dark-matter">
-                      <span class="w-3 h-3 bg-black rounded-full mr-2"></span>
-                      Dark Matter
-                    </button>
-                  </div>
-                </div>
-              </div>
-            <button class="cursor-pointer bg-white p-2 rounded-md shadow-md hover:bg-gray-100 transition duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
-                </svg>
-            </button>
         </div>
         
     </section>
