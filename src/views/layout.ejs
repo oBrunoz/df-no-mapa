@@ -13,14 +13,16 @@
     <title>DF no Mapa</title>
 </head>
 <body>
+
     <%- include('partials/navbar') %>
+    <%- include('partials/side_bar') %>
 
     <%- body %>
 
     <!-- Leaflet JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script src="https://apis.google.com/js/api.js"></script>
-    <script src="/js/script.js"></script>
-    <script src="/js/estimation-land-surface-temperature.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script type="module" src="/js/UI.js"></script>
 </body>
 </html>
