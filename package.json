@@ -2,7 +2,6 @@
   "name": "df-no-mapa",
   "version": "1.0.0",
   "description": "",
-  "main": "estimation-land-surface-temperature.js",
   "scripts": {
     "start": "nodemon",
     "build": "tsc",
@@ -21,6 +20,7 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "@preline/overlay": "^3.0.0",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "express-ejs-layouts": "^2.5.1",
