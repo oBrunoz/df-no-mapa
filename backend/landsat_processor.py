@@ -47,8 +47,6 @@ class LandsatProcessor:
             maxPixels=1e9
         ).getInfo()
 
-        print("Minimum NDVI:", stats['NDVI_min'])
-        print("Maximum NDVI:", stats['NDVI_max'])
         return stats['NDVI_min'], stats['NDVI_max']
 
     def get_landsat_layer(self):
@@ -57,11 +55,14 @@ class LandsatProcessor:
             'min': 0.0,
             'max': 0.15
         }
-        map_info = self.image.getMapId(vis)
+        
+        landsat_vis = self.image.getMapId(vis)
+        tile_url = landsat_vis['tile_fetcher'].url_format
+
         return {
-            'mapid': map_info['mapid'],
             'image': self.image,
-            'token': map_info['token'],
+            'image': self.image,
+            'tile_url': tile_url,
             'visualization': vis,
             'bounds': self.region.geometry().bounds().getInfo()['coordinates'],
             'region_name': self.region_name,
@@ -69,13 +70,19 @@ class LandsatProcessor:
         }
 
     def get_ndvi_layer(self):
+        ndvi_vis = {
+            'min': -1,
+            'max': 1,
+            'palette': ['blue', 'white', 'green']
+        }
+
+        ndvi_map_info = self.ndvi.getMapId(ndvi_vis)
+        ndvi_tile_url = ndvi_map_info['tile_fetcher'].url_format
+
         return {
             'ndvi': self.ndvi,
-            'ndviPallete': {
-                'min': -1,
-                'max': 1,
-                'palette': ['blue', 'white', 'green']
-            }
+            'ndviPallete': ndvi_vis,
+            'tile_url': ndvi_tile_url,
         }
 
     def _calculate_thermal_layer(self):
@@ -90,31 +97,42 @@ class LandsatProcessor:
         return lst
 
     def get_thermal_layer(self):
+        thermal_vis = {
+            "min": 18.47,
+            "max": 42.86,
+            "palette": [
+                '040274', '040281', '0502a3', '0502b8', '0502ce', '0502e6',
+                '0602ff', '235cb1', '307ef3', '269db1', '30c8e2', '32d3ef',
+                '3be285', '3ff38f', '86e26f', '3ae237', 'b5e22e', 'd6e21f',
+                'fff705', 'ffd611', 'ffb613', 'ff8b13', 'ff6e08', 'ff500d',
+                'ff0000', 'de0101', 'c21301', 'a71001', '911003'
+            ]
+        }
+        
+        # Método atualizado para obter a URL de visualização
+        thermal_map = self.thermal.getMapId(thermal_vis)
+        tile_url = thermal_map['tile_fetcher'].url_format
+
         return {
             'layer': self.thermal,
-            'vis_params': {
-                "min": 18.47,
-                "max": 42.86,
-                "palette": [
-                    '040274', '040281', '0502a3', '0502b8', '0502ce', '0502e6',
-                    '0602ff', '235cb1', '307ef3', '269db1', '30c8e2', '32d3ef',
-                    '3be285', '3ff38f', '86e26f', '3ae237', 'b5e22e', 'd6e21f',
-                    'fff705', 'ffd611', 'ffb613', 'ff8b13', 'ff6e08', 'ff500d',
-                    'ff0000', 'de0101', 'c21301', 'a71001', '911003'
-                ]
-            },
-            'name': f'Temperatura do solo - {self.year} - {self.region_name}'
+            'vis_params': thermal_vis,
+            'name': f'Temperatura do solo - {self.year} - {self.region_name}',
+            'tile_url': tile_url
         }
 
-    # def visualize(self):
-    #     m = geemap.Map(center=[-15.8, -47.9], zoom=12)
-
-    #     landsat = self.get_landsat_layer()
-    #     ndvi = self.get_ndvi_layer()
-    #     thermal = self.get_thermal_layer()
-
-    #     m.add_layer(landsat['image'], landsat['visualization'], 'Landsat')
-    #     m.add_layer(ndvi['ndvi'], ndvi['ndviPallete'], 'NDVI')
-    #     m.add_layer(thermal['layer'], thermal['vis_params'], thermal['name'])
-
-    #     return m
+    def get_all_tile_urls(self):
+        landsat = self.get_landsat_layer()
+        ndvi = self.get_ndvi_layer()
+        thermal = self.get_thermal_layer()
+        
+        return {
+            'landsat_tile_url': landsat['tile_url'],
+            'ndvi_tile_url': ndvi['tile_url'],
+            'thermal_tile_url': thermal['tile_url']
+        }
+    
+processor = LandsatProcessor()
+urls = processor.get_all_tile_urls()
+print("Landsat Tile URL:", urls['landsat_tile_url'])
+print("NDVI Tile URL:", urls['ndvi_tile_url'])
+print("Thermal Tile URL:", urls['thermal_tile_url'])
