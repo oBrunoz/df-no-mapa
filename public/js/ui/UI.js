@@ -60,6 +60,10 @@ export function updateInfoPanel(map) {
   const totalYears = endYear - startYear;
   const spacing = 100 / totalYears; // Defino o espaçamento entre os pontos
 
+  rangeInput.min = startYear;
+  rangeInput.max = endYear;
+  rangeInput.value = 2025;
+
   // Crio os pontos do timeline
   for (let i = 0; i <= totalYears; i++) {
       const leftPosition = i * spacing;
@@ -105,4 +109,3 @@ export function updateInfoPanel(map) {
   setupZoomButton(zoomInButton);
   setupZoomButton(zoomOutButton);
 }
-  
