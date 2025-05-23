@@ -1,8 +1,36 @@
 import ee
 
-# Classe de processamento de imagens Landsat
 class LandsatProcessor:
-    def __init__(self, region_name="Distrito Federal", year=2023):
+    """
+        LandsatProcessor é uma classe utilitária para processar imagens de satélite Landsat 9 usando o Google Earth Engine (GEE).
+        Ela fornece métodos para recuperar, processar e visualizar dados de satélite para uma região e ano especificados, incluindo
+        o cálculo do NDVI (Índice de Vegetação por Diferença Normalizada) e da temperatura da superfície terrestre (camada térmica).
+        Atributos:
+            region_name (str): Nome da região administrativa a ser processada (padrão: "Distrito Federal").
+            year (int): Ano para o qual as imagens serão processadas.
+            region (ee.FeatureCollection): Geometria da região carregada do conjunto de dados FAO GAUL.
+            image (ee.Image): Imagem Landsat processada (com máscara de nuvens, escalada e recortada).
+            ndvi (ee.Image): Imagem NDVI calculada a partir da imagem Landsat processada.
+            ndvi_min (float): Valor mínimo de NDVI dentro da região.
+            ndvi_max (float): Valor máximo de NDVI dentro da região.
+            thermal (ee.Image): Imagem de temperatura da superfície terrestre calculada a partir da imagem Landsat processada.
+        Métodos:
+            get_landsat_layer():
+                Retorna parâmetros de visualização e URL de tiles para a imagem RGB Landsat.
+            get_ndvi_layer():
+                Retorna parâmetros de visualização e URL de tiles para a imagem NDVI.
+            get_thermal_layer():
+                Retorna parâmetros de visualização e URL de tiles para a imagem de temperatura da superfície terrestre.
+            get_all_tile_urls():
+                Retorna um dicionário com as URLs dos tiles para as camadas Landsat RGB, NDVI e térmica.
+        Uso:
+            Instancie a classe com o ano e nome da região desejados. Utilize os métodos fornecidos para acessar
+            imagens processadas e URLs de visualização para integração com aplicações de mapas.
+        Observação:
+            Requer autenticação e disponibilidade da API Python do Google Earth Engine.
+    """
+
+    def __init__(self, year, region_name="Distrito Federal"):
         ee.Authenticate()
         ee.Initialize()
         self.region_name = region_name
@@ -131,8 +159,8 @@ class LandsatProcessor:
             'thermal_tile_url': thermal['tile_url']
         }
     
-processor = LandsatProcessor()
-urls = processor.get_all_tile_urls()
-print("Landsat Tile URL:", urls['landsat_tile_url'])
-print("NDVI Tile URL:", urls['ndvi_tile_url'])
-print("Thermal Tile URL:", urls['thermal_tile_url'])
+# processor = LandsatProcessor()
+# urls = processor.get_all_tile_urls()
+# print("Landsat Tile URL:", urls['landsat_tile_url'])
+# print("NDVI Tile URL:", urls['ndvi_tile_url'])
+# print("Thermal Tile URL:", urls['thermal_tile_url'])
